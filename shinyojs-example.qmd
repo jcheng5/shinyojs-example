@@ -18,6 +18,9 @@ points = FileAttachment("points.csv").csv({typed: true})
 
 ```{ojs}
 viewof bins = Inputs.range([10, 100], {value: 10, step: 1, label: "Bins"})
+// The performance of Plot.bin makes it totally unreasonable to
+// react to every single value emitted by the Input.range; use
+// a simple debounce implementation to slow it down.
 bins_debounced = debounce(viewof bins)
 ```
 
@@ -41,22 +44,19 @@ Plot.plot({
 ```
 
 ```{ojs}
+// Inspired by https://observablehq.com/@mbostock/debouncing-input
 function debounce(input, delay = 1000) {
   return Generators.observe(notify => {
     let timer = null;
 
-    // On input, check if we recently reported a value.
-    // If we did, do nothing and wait for a delay;
-    // otherwise, report the current value and set a timeout.
     function inputted() {
       if (timer) {
         clearTimeout(timer);
+        timer = null;
       }
       timer = setTimeout(delayed, delay);
     }
 
-    // After a delay, check if the last-reported value is the current value.
-    // If it’s not, report the new value.
     function delayed() {
       timer = null;
       notify(input.value);
