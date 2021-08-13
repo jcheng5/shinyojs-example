@@ -6,7 +6,7 @@ echo: false
 
 This example visualizes 1 million x/y points using 2D binning. The user can choose the number of bins.
 
-This example is not a great fit for pure OJS, due to the size of the data to be downloaded (32MB) and the amount of time it takes `Plot.bin` to handle the data.
+This scenario is not an ideal fit for pure client-side OJS, due to the size of the data to be downloaded (32MB) and the amount of time it takes `Plot.bin` to handle the data.
 
 ::: {.alert .alert-info}
 **Note:** Choosing larger values for "Bins" may cause your browser to become unresponsive for several seconds.
