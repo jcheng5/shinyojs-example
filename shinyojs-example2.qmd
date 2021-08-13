@@ -1,0 +1,42 @@
+---
+title: "shinyojs-example"
+server: shiny
+---
+
+This is a Quarto document. To learn more about Quarto visit <https://quarto.org>.
+
+```{ojs}
+//| output: all
+viewof bins = Inputs.range([10, 100], {value: 10, step: 1, label: "Bins"})
+```
+
+```{ojs}
+//| output: all
+Plot.rect(transpose(rects), {x1: "x1", x2: "x2", y1: "y1", y2: "y2", fillOpacity: "count"}).plot()
+```
+
+```{r}
+#| context: server-start
+library(readr)
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+
+cache <- cachem::cache_disk("./cache")
+points <- read_csv("points.csv", col_types = "dd")
+checksum <- digest::digest(points, "sha1")
+```
+
+```{r}
+#| context: server
+bins_debounced <- reactive(req(input$bins)) %>% debounce(500)
+
+df <- reactive({
+  p <- ggplot(points, aes(x = x, y = y)) +
+    stat_bin2d(bins = bins_debounced())
+  binned <- ggplot_build(p)$data[[1]]
+  binned %>% select(x1 = xmin, x2 = xmax, y1 = ymin, y2 = ymax, count = count)
+}) %>% bindCache(bins_debounced(), checksum, cache = cache)
+
+ojs_define(rects = df)
+```

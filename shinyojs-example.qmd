@@ -1,0 +1,63 @@
+---
+title: "shinyojs-example"
+---
+
+This is a Quarto document. To learn more about Quarto visit <https://quarto.org>.
+
+```{r}
+library(readr)
+library(ggplot2)
+points <- read_csv("points.csv", col_types = "dd")
+points <- points[sample(nrow(points), 100000),]
+ojs_define(points)
+```
+
+```{ojs}
+//| output: all
+points
+```
+
+```{ojs}
+//| output: all
+viewof bins = Inputs.range([10, 100], {value: 10, step: 1, label: "Bins"})
+bins_debounced = debounce(viewof bins)
+```
+
+```{ojs}
+// Plot.dot(transpose(points), {x: "x", y: "y"}).plot()
+Plot.rect(transpose(points),
+  Plot.bin({fillOpacity: "count"}, {
+    x: {value: "x", thresholds: bins_debounced},
+    y: {value: "y", thresholds: bins_debounced},
+    inset: false
+  })
+).plot()
+```
+
+```{ojs}
+function debounce(input, delay = 1000) {
+  return Generators.observe(notify => {
+    let timer = null;
+
+    // On input, check if we recently reported a value.
+    // If we did, do nothing and wait for a delay;
+    // otherwise, report the current value and set a timeout.
+    function inputted() {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(delayed, delay);
+    }
+
+    // After a delay, check if the last-reported value is the current value.
+    // If it’s not, report the new value.
+    function delayed() {
+      timer = null;
+      notify(input.value);
+    }
+
+    input.addEventListener("input", inputted), inputted();
+    return () => input.removeEventListener("input", inputted);
+  });
+}
+```
