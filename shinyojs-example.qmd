@@ -1,37 +1,43 @@
 ---
-title: "shinyojs-example"
+title: "Visualizing 1 million points with OJS"
+code-tools: true
+echo: false
 ---
 
-This is a Quarto document. To learn more about Quarto visit <https://quarto.org>.
+This example visualizes 1 million x/y points using 2D binning. The user can choose the number of bins.
 
-```{r}
-library(readr)
-library(ggplot2)
-points <- read_csv("points.csv", col_types = "dd")
-points <- points[sample(nrow(points), 100000),]
-ojs_define(points)
+This example is not a great fit for pure OJS, due to the size of the data to be downloaded (32MB) and the amount of time it takes `Plot.bin` to handle the data.
+
+::: {.alert .alert-info}
+**Note:** Choosing larger values for "Bins" may cause your browser to become unresponsive for several seconds.
+:::
+
+```{ojs}
+points = FileAttachment("points.csv").csv({typed: true})
 ```
 
 ```{ojs}
-//| output: all
-points
-```
-
-```{ojs}
-//| output: all
 viewof bins = Inputs.range([10, 100], {value: 10, step: 1, label: "Bins"})
 bins_debounced = debounce(viewof bins)
 ```
 
 ```{ojs}
-// Plot.dot(transpose(points), {x: "x", y: "y"}).plot()
-Plot.rect(transpose(points),
-  Plot.bin({fillOpacity: "count"}, {
-    x: {value: "x", thresholds: bins_debounced},
-    y: {value: "y", thresholds: bins_debounced},
-    inset: false
-  })
-).plot()
+Plot.plot({
+  width: 600,
+  height: 600,
+  color: {
+    scheme: "blues"
+  },
+  marks: [
+    Plot.rect(points,
+      Plot.bin({fill: "count"}, {
+        x: {value: "x", thresholds: bins_debounced},
+        y: {value: "y", thresholds: bins_debounced},
+        inset: false
+      })
+    )
+  ]
+})
 ```
 
 ```{ojs}
