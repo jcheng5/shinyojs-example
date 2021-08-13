@@ -1,0 +1,41 @@
+---
+title: "Injecting Shiny into Observable"
+code-tools: true
+echo: false
+server: shiny
+---
+
+This example takes the existing Observable notebook [\@d3/hexbin](https://observablehq.com/@d3/hexbin) and renders the interesting parts in this page (the input slider and the output plot).
+
+We also replace the data in the original notebook with our own copy of the data from Shiny, adding the ability to filter the data.
+
+```{ojs}
+import {viewof radius, chart} with {data as data} from "@d3/hexbin";
+
+// Display these pieces from the original notebook
+viewof radius
+chart
+```
+
+```{ojs}
+// The data used by the chart is this: a transposed version of the
+// diamonds Shiny reactive that is defined in the R chunk below.
+data = transpose(diamonds)
+
+viewof cut = {
+  const levels = ["Fair", "Good", "Very Good", "Premium", "Ideal"];
+  return Inputs.select(levels, {value: levels, multiple: true, label: "Filter by cut"});
+}
+```
+
+```{r}
+#| context: server
+library(dplyr)
+
+diamonds <- reactive({
+  ggplot2::diamonds %>%
+    filter(cut %in% input$cut) %>%
+    select(x = carat, y = price)
+})
+ojs_define(diamonds)
+```
