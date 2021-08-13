@@ -4,3 +4,7 @@
 .Ruserdata
 
 /.quarto/
+
+*.html
+*_files
+points.csv
