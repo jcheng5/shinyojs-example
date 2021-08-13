@@ -9,3 +9,5 @@ After cloning the repo, run `generate-data.R`. This will generate random data an
 -   01-binning-ojs.qmd: <https://connect.rstudioservices.com/01-binning-ojs/>
 
 -   01-binning-shinyojs.qmd: <https://jcheng.shinyapps.io/01-binning-shinyojs/>
+
+-   02-hexbin.qmd: <https://jcheng.shinyapps.io/02-hexbin/>
